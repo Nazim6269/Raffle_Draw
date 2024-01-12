@@ -4,7 +4,7 @@ class MyDB {
   constructor() {
     this.tickets = [];
   }
-
+  //==============================================//
   /**
    * Create a ticket
    * @param {string} username
@@ -16,7 +16,7 @@ class MyDB {
     this.tickets.push(ticket);
     return ticket;
   }
-
+  //==============================================//
   /**
    * create a multiple ticket for a single user
    * @param {string} username
@@ -32,7 +32,7 @@ class MyDB {
     }
     return result;
   }
-
+  //======================================================//
   /**
    * return all tickets
    */
@@ -40,7 +40,7 @@ class MyDB {
   find() {
     return this.tickets;
   }
-
+  //==============================================//
   /**
    * find a single ticket by id
    * @param {string} ticketId
@@ -56,7 +56,7 @@ class MyDB {
     );
     return tickets;
   }
-
+  //============================================//
   /**
    *
    * @param {string;} username
@@ -68,26 +68,44 @@ class MyDB {
        * @param {Ticket} ticket
        */
 
-      ticket.username === username
+      (ticket) => ticket.username === username
     );
 
     return ticket;
   }
-
+  //==========================================//
   /**
    *
    * @param {string} ticketId
    * @param {{username:string,price:number}} ticketBody
    */
   updateById(ticketId, ticketBody) {
-    const ticket = this.find(ticketId);
-    this.username = ticketBody.username ?? this.username;
-    this.price = ticketBody.price ?? this.price;
-    this.updateAt = new Date();
+    const ticket = this.findById(ticketId);
+
+    ticket.username = ticketBody.username ?? this.username;
+    ticket.price = ticketBody.price ?? this.price;
+    ticket.updatedAt = new Date();
 
     return ticket;
   }
+  //==============================================//
+  /**
+   *
+   * @param {string} username
+   * @param {{username:string,price:number}} ticketBody
+   */
+  updateByUsername(username, ticketBody) {
+    const ticket = this.findByUsername(username);
 
+    ticket.reduce((acc, cur) => {
+      cur.username = ticketBody.username ?? this.username;
+      cur.updatedAt = new Date();
+      return acc;
+    }, []);
+
+    return ticket;
+  }
+  //==============================================//
   /**
    *
    * @param {number} ticketId
@@ -104,19 +122,41 @@ class MyDB {
     }
   }
 
+  //==============================================//
+  /**
+   *
+   * @param {String} username
+   * @returns {Ticket<Array>}
+   */
+  deleteByUsername(username) {
+    const ticket = this.find();
+    const index = ticket.findIndex((item) => item.username === username);
+
+    if (index !== -1) {
+      ticket.splice(index, 1);
+    }
+
+    return ticket;
+  }
+  //==============================================//
   /**
    *
    * @param {number} winnerCount
    */
   draw(winnerCount) {
-    let winnerIndexes = new Array(winnerCount);
+    if (winnerCount > this.tickets.length) {
+      console.error(
+        "Error: Not enough tickets available for the specified winner count."
+      );
+      return null;
+    }
 
-    let index = 0;
-    while (index < winnerCount) {
+    let winnerIndexes = [];
+
+    while (winnerIndexes.length < winnerCount) {
       let winnerIndex = Math.floor(Math.random() * this.tickets.length);
       if (!winnerIndexes.includes(winnerIndex)) {
-        winnerIndexes[index++] = winnerIndex;
-        continue;
+        winnerIndexes.push(winnerIndex);
       }
     }
 
@@ -126,4 +166,5 @@ class MyDB {
 }
 
 const myDB = new MyDB();
+
 module.exports = myDB;
