@@ -129,14 +129,13 @@ class MyDB {
    * @returns {Ticket<Array>}
    */
   deleteByUsername(username) {
-    const ticket = this.find();
-    const index = ticket.findIndex((item) => item.username === username);
+    const tickets = this.find();
 
-    if (index !== -1) {
-      ticket.splice(index, 1);
-    }
+    const filteredTickets = tickets.filter((item) => {
+      return item.username !== username;
+    });
 
-    return ticket;
+    this.tickets = filteredTickets;
   }
   //==============================================//
   /**
